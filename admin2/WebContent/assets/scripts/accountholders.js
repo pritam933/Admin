@@ -3,7 +3,18 @@
 var username;
 
 
-window.onload=function AccountsList(){
+window.onload=function AccountsList()   {
+	
+	
+	
+	if(!window.location.hash) {
+        //setting window location
+        window.location = window.location + '#loaded';
+        //using reload() method to reload web page
+        window.location.reload();
+    }
+	
+	
 						
 	$.ajaxSetup({
 		  // Disable caching of AJAX responses
@@ -13,7 +24,7 @@ window.onload=function AccountsList(){
 								$.ajax({
 									
 								     type : "POST",
-								     url : "/admin2/AccountList",
+								     url : "/AccountList",
 //								     data : {Admin_Agent_code:Admin_Agent_code,Admin_Sub_Agent_code:Admin_Sub_Agent_code},
 								     timeout : 100000,
 								 
@@ -38,6 +49,9 @@ window.onload=function AccountsList(){
              "<button type='button' tabindex='0' style='color:white; background-color: #3A6F8D;' class='dropdown-item' id='details' data-toggle='modal' data-target='.bd-example-modal-lg' onclick=populateDetails('"+val['UserName_UserID']+"')  >Details</button> </td></tr>";
 										    		 
 										    		$('#myTable').append(tab)
+										    		
+										    		
+										    		
 										    		}
 
 					    						
@@ -52,6 +66,8 @@ window.onload=function AccountsList(){
 								
 								
 							}
+
+
 
 
 function populateDetails(username)
@@ -101,10 +117,10 @@ function populateDetails(username)
 					$.ajax({
 						
 					     type : "POST",
-					     url : "/admin2/Information",
+					     url : "/Information",
 					     data : {username:username},
 					     timeout : 100000,
-					 
+					     
 					     success : function(data) {	
    
 					    	 
@@ -176,16 +192,16 @@ function getuseraccounts(username){
 	
 //alert(username);
 	
-	
-	$.ajaxSetup({
-		  // Disable caching of AJAX responses
-		  cache: false
-		});
+//	$('div#demopk').empty();
+//	$.ajaxSetup({
+//		  // Disable caching of AJAX responses
+//		  cache: false
+//		});
 
 	$.ajax({
 		
 	     type : "POST",
-	     url : "/admin2/getaccounts",
+	     url : "/getaccounts",
          data : {username:username},
 	     timeout : 100000,
 	 
@@ -216,7 +232,7 @@ function getuseraccounts(username){
 	    		
 	    		var tab='<tr><td>'+i+"\n"+'</td><td id="accountid'+i+'" value="'+val['id']+'" >'+val['id']+"\n"+'</td><td>'
 				+val['balance']+"\n"+'</td><td>'+val['currency']+"\n"+'</td><td>'
-				 +val['status_code']+"\n"+'</td><td>'+
+				 +val['status']+"\n"+'</td><td>'+
 "<button type='button' style='color:white; background-color: #3A6F8D;' class='dropdown-item' data-toggle='modal' data-target='#exampleModal' id='acc'  onclick=accdetails('"+val['id']+"') >Transfer</button> </td></tr>";
 	    		
 			    		$('#myTable2').append(tab)
@@ -224,11 +240,13 @@ function getuseraccounts(username){
 
 					
 
-					
+	      
 				
 	}	
 	       
 	     }
+	
+	
 	     
 	 );
 	
@@ -249,7 +267,7 @@ function accdetails(accountid)
 					$.ajax({
 						
 					     type : "POST",
-					     url : "/admin2/accountdetails",
+					     url : "/accountdetails",
 					     data : {account:accountid},
 					     timeout : 100000,
 					 
@@ -277,6 +295,8 @@ function accdetails(accountid)
 				);
 				
 			}
+
+
 
 
 

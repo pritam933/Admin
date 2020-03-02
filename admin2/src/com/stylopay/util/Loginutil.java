@@ -27,7 +27,7 @@ public class Loginutil {
 		
 		try {
 
-			URL url = new URL("http://developer.staging.stylopay.com/StyloDemoWalletService/API/CommonServices/Login");
+			URL url = new URL("http://35.180.75.185/StyloDemoWalletServiceNew/API/CommonServices/Login");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");

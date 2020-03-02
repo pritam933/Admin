@@ -23,7 +23,7 @@ public class GetAccountDetails {
 		
 try {
 			
-			URL url = new URL("http://developer.staging.stylopay.com/StyloDemoWalletService/API/CommonServices/GetAccountDetails");
+			URL url = new URL("http://35.180.75.185/StyloDemoWalletServiceNew/API/UPayAPI/GetAccountDetails");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");

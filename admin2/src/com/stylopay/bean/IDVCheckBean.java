@@ -60,7 +60,7 @@ public class IDVCheckBean {
 	static String postcode = null;
 	static String lname = null;
 	public static void birthDate(String parameter) {
-		// TODO Auto-generated method stub
+	
 		
 	}
 	

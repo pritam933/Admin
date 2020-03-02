@@ -18,7 +18,7 @@ import com.stylopay.bean.Detailsbean;
 public class Details {
 	
 	
-	Detailsbean Detailsbean;
+	Detailsbean detailsbean;
 	
 	String jsonResponse = null;
 	String response = null;
@@ -27,13 +27,11 @@ public class Details {
 	public String details(String username) throws JSONException {
 		
 		
-		
-		String UserName = username;
-
+	
 		
 		try {
 
-			URL url = new URL(" http://developer.staging.stylopay.com/StyloDemoWalletService/API/CommonServices/GetUser_Details ");
+			URL url = new URL(" http://35.180.75.185/StyloDemoWalletServiceNew/API/UPayAPI/GetUserDetails ");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");
@@ -72,7 +70,7 @@ public class Details {
 		return response;
 	}
 
-	public static String getdetails(Object user_permission_group, Object first_name, Object last_name, Object id) {
+	public static String getdetails(  Object id) {
 		return null;
 	}
 

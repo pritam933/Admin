@@ -15,20 +15,21 @@ public class Accountholderlist {
 	
 	Accountholderlist  Accountholdersbean;
 	
-	String Admin_Agent_code = null;
-	String Admin_Sub_Agent_code = null;
+	String adminkacode = null;
+	String subagentkacode = null;
 	String jsonResponse = null;
 	String response = null;
 	
 	public String getcardholdersAPI( String admin_Agent_code, String admin_Sub_Agent_code) throws JSONException{
 		
-		this.Admin_Agent_code = admin_Agent_code;
-		this.Admin_Sub_Agent_code = admin_Sub_Agent_code;		
+		this.adminkacode = admin_Agent_code;
+		this.subagentkacode = admin_Sub_Agent_code;		
 		
 		
 		try {
 
-			URL url = new URL("http://developer.staging.stylopay.com/StyloDemoWalletService/API/AdminFunc/GetCardHolders");
+			
+			URL url = new URL("http://35.180.75.185/StyloDemoWalletServiceNew/API/AdminFunc/GetCardHolders");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");

@@ -62,7 +62,7 @@ public class MoneyTransferToAnotherAcc {
 		
 		try {
 
-			URL url = new URL(" http://developer.staging.stylopay.com/StyloDemoWalletService/API/MoneyTransfer/FundTransferUser ");
+			URL url = new URL("	 ");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");

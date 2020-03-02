@@ -33,8 +33,8 @@ function  (start, end, label) {
 	   var accountId = document.getElementById("masteracc").value;							
 	
 ///	convert array to string
-	   //var startstring=start.toString();
-	  // var endstring=end.toString();
+	  var startstring=start.toISOString().split('T')[0];
+	  var endstring=end.toISOString().split('T')[0]
 	   
 	
 	   
@@ -43,8 +43,8 @@ function  (start, end, label) {
 	   //assign    
 	   
 	   var tempAccountId = accountId;
-		var tempFromDate = "2020-02-01";
-		var tempToDate = "2020-02-11";
+		var tempFromDate = startstring;
+		var tempToDate = endstring;
 		
 		
 	
@@ -53,7 +53,7 @@ function  (start, end, label) {
 //		accountId:tempAccountId,
 		$.ajax({
 		     type : "POST",
-		     url : "/admin2/getactivity",
+		     url : "/getactivity",
 		     data : {accountId:tempAccountId, fromDate:tempFromDate, toDate:tempToDate},
 		     timeout : 100000,
 		     async: false,

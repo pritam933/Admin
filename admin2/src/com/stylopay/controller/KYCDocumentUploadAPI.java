@@ -31,7 +31,7 @@ public class KYCDocumentUploadAPI {
 		this.username = username;
 		this.documentType = documentType;
 		
-		System.out.println("document type is: " + documentType);
+		
 		
 		try {
 

@@ -1,11 +1,15 @@
 package com.stylopay.controller;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
@@ -42,6 +46,7 @@ import com.stylopay.util.Accountholderlist;
 import com.stylopay.bean.TransactionActivitiesBean;
 
 
+
 @Controller
 public class AdminController {
 
@@ -55,7 +60,7 @@ public class AdminController {
 	private String admin_Agent_code = "";
 	private String admin_Sub_Agent_code = "";
 	Accountholdersbean accountholder = new Accountholdersbean();
-	private String msg;
+	
 	String username = null;
 	String name = null;
 	String email = null;
@@ -75,6 +80,8 @@ public class AdminController {
 	String accessToken = null;
      String memberId = null;
 	List<String> accountInfo = new ArrayList<String>();
+	
+	ResultSet resultSet = null;
 
 	GetUserAccounts getUserAccountsList = new GetUserAccounts();
 	InsertUsercredentialsToDatabase insertUsercredentialsToDatabase = new InsertUsercredentialsToDatabase();
@@ -103,6 +110,7 @@ public class AdminController {
 		String Email_ID=null;
         String AccountId1=null;
         String adminagent=null;
+        String adminsubagent=null;
 		String password = loginbean.getPass();
 		String response = login.login(email, password);
 		JSONObject jsonreponse = new JSONObject(response);
@@ -119,9 +127,7 @@ public class AdminController {
 			admin_Agent_code = jsonreponse1.get("Admin_Agent_code").toString();
 			admin_Sub_Agent_code = jsonreponse1.get("Admin_Sub_Agent_code").toString();
 
-			ModelAndView andView = new ModelAndView("dashboard2");
-			
-			
+		
              UserName_UserID  =	jsonreponse1.get("UserName_UserID").toString();
 			httpSession.setAttribute("UserName_UserID", UserName_UserID);
 			
@@ -129,8 +135,8 @@ public class AdminController {
 			
 			httpSession.setAttribute("Client_Agent_SubAgent_Name", Client_Agent_SubAgent_Name);
 			
-			
-			
+			adminsubagent=jsonreponse1.get("Admin_Sub_Agent_code").toString();
+			httpSession.setAttribute("Admin_Sub_Agent_code", adminsubagent);
 			Email_ID=jsonreponse1.get("Email_ID").toString();
 			httpSession.setAttribute("Email_ID", Email_ID);
 			AccountId1=jsonreponse1.get("AccountId").toString();
@@ -143,8 +149,8 @@ public class AdminController {
 
 			loginbean.setEmail(loginbean.getEmail());
 			loginbean.setPass(loginbean.getPass());
+			////////////////////////////////if new session requested redirect to login page/////////////////////////
 			
-	 	
 		
 
 			return new ModelAndView("dashboard2");
@@ -154,9 +160,7 @@ public class AdminController {
 
 	}
 
-	private ModelAndView dashboard(Loginutil login, Model model) {
-		return new ModelAndView("Dashboard");
-	}
+	
 
 	//////////////////////////////////// Get card
 	//////////////////////////////////// holders////////////////////////////
@@ -169,12 +173,12 @@ public class AdminController {
 		String cardholders=null;
 
 		if (admin_Agent_code == null) {
+			
+		
 
-			msg = "Agent Code Required!";
-
+	
 		} else {
 			Accountholderlist getcardholdersAPI = new Accountholderlist();
-			JSONObject jsonResponse = new JSONObject();
 			String response = getcardholdersAPI.getcardholdersAPI(admin_Agent_code, admin_Sub_Agent_code);
 
 			if (response.contains("OK")) {
@@ -185,39 +189,21 @@ public class AdminController {
 				
 				
 				
-				ModelAndView mv = new ModelAndView("dashboard2");
-			
 			httpSession.setAttribute("cardholders", cardholders);
 			
 			
-				
+		
 	
 
 
 			} 
 
 		}
-		return userData.toString();
+		return userData;
 		
 	}
 
-	/////////////////////////////////////////////////////// details////////////////////////////////////////
 
-	@RequestMapping(value = "/Detail", method = RequestMethod.POST)
-	@ResponseBody
-	public String userdetails(@RequestParam("username") String username, Detailsbean Detailsbean,
-			HttpServletRequest request, Model model) throws Exception {
-
-		System.out.println("username is: " + username);
-
-		Details Details = new Details();
-		String response = Details.details(username);
-
-		ModelAndView andView = new ModelAndView("kycupload");
-		andView.addObject("id", "");
-
-		return response;
-	}
 
 //////////////////////////////////////////////////////kyc upload/////////////////////////////////////////
 	@RequestMapping(value = "/kycupload", method = RequestMethod.POST)
@@ -250,8 +236,7 @@ public class AdminController {
 
          // Get the list of files
 		List<MultipartFile>files = kycFileUpload.getFiles();
-		List<String> fileNames = new ArrayList<String>();
-		List<String> docUId = new ArrayList<String>();
+	    List<String> docUId = new ArrayList<String>();
 
 		// Check whether the list is not null or empty
 		if (files != null && !files.get(0).getOriginalFilename().isEmpty()) {
@@ -290,31 +275,26 @@ public class AdminController {
 
 			}
 
-		} else {
-                     
-		}
+		} 
 		
 		
 	
 		
 		// Calling IDVCheck APIIIIIIIIIIIIIIIIIIIIII	
 		
-
-			
-			
+	
  	 	IDVCheckAPI idvCheckAPI = new IDVCheckAPI();
  	 	
- 	 	String idvCheckResponse = idvCheckAPI.kycIdvChcking(docUId, 
+ 	 	String lol=  idvCheckAPI.kycIdvChcking(docUId, 
  	 			isoCountryCode, birthDate, firstname, aptNo, city, state, postcode, lastName,username);
  	 	
- 	 	System.out.println("D response is: " + idvCheckResponse);
-		return null;
+ 	 
  	 	
-
+ 	 	return new ModelAndView("dashboard2");
 
 	}
 
-//////////////////////////////////////////////////////////////details button username populate//////////////////
+//////////////////////////////////////////////////////////////details button populate//////////////////
 	@RequestMapping(value = "/Information", method = RequestMethod.POST)
 	@ResponseBody
 	public String  userdetails(@RequestParam("username") String username, HttpServletRequest request, Model model)
@@ -323,27 +303,14 @@ public class AdminController {
 		
 		
 
-		 Details Details = new Details();
+		 Details user = new Details();
 		 
-			//JSONObject jsonResponse123 = new JSONObject();
-		 String response = Details.details(username);
+		 return user.details(username);
 		 
-		 
-		/*
-		 * detailsbean.setUsername(request.getParameter("username"));
-		 * /////////////////////////////////////////////////////////////
-		 * detailsbean.setCountry(request.getParameter("country"));
-		 * detailsbean.setAptNo(request.getParameter("address"));
-		 * detailsbean.setCity(request.getParameter("city"));
-		 * detailsbean.setLname(request.getParameter("last_name"));
-		 * detailsbean.setFname(request.getParameter("first_name"));
-		 * detailsbean.setState(request.getParameter("state"));
-		 * detailsbean.setPostcode(request.getParameter("postal_code"));
-		 * 
-		 */    
+ 
 	        
-        
-		return response;
+         
+		
 	}
 
 	/////////////////////////////////////// get user
@@ -354,23 +321,12 @@ public class AdminController {
 	@ResponseBody
 	public String GetUserAccounts(@ModelAttribute("acounts") Detailsbean Detailsbean, HttpServletRequest request,
 			Model model, String username) throws SQLException, JSONException {
-		//String accounts1 = null;
+	      GetUserAccounts accountDetails = new GetUserAccounts();
+	      return accountDetails.accountDetails(username);
 
-		GetUserAccounts accountDetails = new GetUserAccounts();
-		JSONObject userAccountTypes = new JSONObject();
-		String response = accountDetails.accountDetails(username);
+		
 
-		if (response.contains("success")) {
-
-			JSONObject jsonResponse2 = new JSONObject(response);
-		//	accounts1 = jsonResponse2.get("accounts").toString();
-
-		} else {
-			msg = "Some internal error occurs there!";
-
-		}
-
-		return response;
+		
 	}
 
 	///////////////////////////////////////////////////// get account
@@ -381,10 +337,10 @@ public class AdminController {
 	public String accountdetails1(@RequestParam("account") String account, HttpServletRequest request, Model model)
 			throws Exception {
 
-		GetAccountDetails GetAccountDetails = new GetAccountDetails();
-		String response = GetAccountDetails.accountdetails1(account);
+		GetAccountDetails dontGetAccountDetails = new GetAccountDetails();
+		return dontGetAccountDetails.accountdetails1(account);
 
-		return response;
+		
 	}
 
 ////////////////////////////////////////////////////////////money  transfer//////////////////
@@ -394,7 +350,7 @@ public class AdminController {
 
 			@RequestParam("beneficiaryAccount") String beneficiaryAccount, @RequestParam("amount") String amount,
 			@RequestParam("currencyType") String currencyType, HttpServletRequest request,
-			MoneyTransferToAnotherAccBean MoneyTransferToAnotherAccBean, Model Model)
+			MoneyTransferToAnotherAccBean moneytransfer, Model Model)
 			throws JSONException, JSONException {
 
 		String senderAccount = senderAcc;
@@ -404,11 +360,11 @@ public class AdminController {
 		String transferAmount = amount;
 		String currency = currencyType;
 
-		 MoneyTransferToAnotherAcc MoneyTransferToAnotherAcc = new  MoneyTransferToAnotherAcc();
-		 String response = MoneyTransferToAnotherAcc.fundTransferAnotherUser(senderAccount, beneficiaryAcc, transferAmount, currency);
+		 MoneyTransferToAnotherAcc moneytransferotheracc = new  MoneyTransferToAnotherAcc();
+		 return moneytransferotheracc.fundTransferAnotherUser(senderAccount, beneficiaryAcc, transferAmount, currency);
 
 	
-		return response;
+		
 	}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////	
@@ -419,19 +375,354 @@ public class AdminController {
 	 public String getTransactionListDetails(@RequestParam("accountId") String accountId,
 			  
 			  @RequestParam("fromDate") String fromDate, @RequestParam("toDate") String
-			  toDate, Model Model,TransactionActivitiesBean TransactionActivitiesBean, HttpServletRequest request) throws JSONException {
+			  toDate, Model Model,TransactionActivitiesBean transactionbean, HttpServletRequest request) throws JSONException {
 
-		GetAccountActivityAPI GetAccountActivityAPI = new GetAccountActivityAPI();
-		String response = GetAccountActivityAPI.getTransactionActivityDetails(accountId,fromDate,toDate);
+		GetAccountActivityAPI transactions = new GetAccountActivityAPI();
+		return	transactions.getTransactionActivityDetails(accountId,fromDate,toDate);
 
-		return response;
+		 
 	}	
 	
 /////////////////////////////////////////////////////////	
+////////////////////////////////////////////////////Update Address//////////////////////////////
+	
+@RequestMapping(value = "/updateAddressInfo", method = RequestMethod.POST)
+@ResponseBody
+public String updateAddressInfo(@RequestParam("updateAddress1") String updateAddress1,@RequestParam("username") String username,
+@RequestParam("updateAddress2") String updateAddress2, @RequestParam("updateCity") String updateCity,
+@RequestParam("updateZip") String updateZip, @RequestParam("updateState") String updateState,
+@RequestParam("updateCountry") String updateCountry,
+@RequestParam("updateBillingAddress1") String updateBillingAddress1,
+@RequestParam("updateBillingAddress2") String updateBillingAddress2,
+@RequestParam("updateBillingCity") String updateBillingCity,
+@RequestParam("updateBillingZip") String updateBillingZip,
+@RequestParam("updateBillingState") String updateBillingState,
+@RequestParam("updateBillingCountry") String updateBillingCountry) throws SQLException, JSONException {
+
+String newAddress1 = updateAddress1;
+String newAddress2 = updateAddress2;
+String newCity = updateCity;
+String newZip = updateZip;
+String newState = updateState;
+String newCountryId = updateCountry;
+
+String newBillingAddress1 = updateBillingAddress1;
+String newBillingAddress2 = updateBillingAddress2;
+String newBillingCity = updateBillingCity;
+String newBillingZip = updateBillingZip;
+String newBillingState = updateBillingState;
+String newBillingCountryId = updateBillingCountry;
+
+System.out.println("username: " + username);
+System.out.println("newAddress1: " + newAddress1);
+
+
+
+UpdateAddressInfo updateAddressInfo = new UpdateAddressInfo();
+String response = updateAddressInfo.updateAddressDetails(username, newAddress1, newAddress2, newCity,
+newZip, newState, newCountryId, newBillingAddress1, newBillingAddress2, newBillingCity, newBillingZip,
+newBillingState, newBillingCountryId);
+
+return response;
+}
+
+
+///////////////////////////////////////////// Update EmailId ///////////////////////////////////////////////////	  
+
+@RequestMapping(value = "/updatePersonalInfo", method = RequestMethod.POST)
+@ResponseBody
+public String updatePersonalInfo(@RequestParam("updatedEmail") String updatedEmail,@RequestParam("username") String username)
+throws SQLException, JSONException {
+
+String newEmail = updatedEmail;
+
+
+
+UpdatePersonalInfo updatePersonalInfo = new UpdatePersonalInfo();
+String response = updatePersonalInfo.updatePersonalDetails(username, newEmail);
+
+return response;
+
+}
+
+
+
+/////////////////////////////////add account
+
+
+@RequestMapping(value = "/accountadd", method = RequestMethod.POST)
+@ResponseBody
+public String  addaccu(@RequestParam("username") String username,@RequestParam("currency") String currency, HttpServletRequest request, Model model)
+		throws SQLException, JSONException  {
+
 	
 	
 
+	AddAccount addAccount = new AddAccount();
+		
+	return addAccount.addCurrencyAccount(currency, username);
+	 
+
+        
+     
+	
+}
+
+
+////////////////////////////////////////
+
+	
+	
+	@RequestMapping(value = "/loadcrypto", method = RequestMethod.POST)
+	@ResponseBody
+	public String  cryptoLoadInitate(@RequestParam("Sub_Agent_Code") String Sub_Agent_Code,@RequestParam("UserName") String UserName,@RequestParam("Agent_Code") String Agent_Code,@RequestParam("Email") String Email,@RequestParam("DepositCurrencyCode") String DepositCurrencyCode,@RequestParam("DepositAmount") String DepositAmount,@RequestParam("SellingCurrencyCode") String SellingCurrencyCode, HttpServletRequest request, Model model)
+			throws Exception {
+
+		
+	//	Map<String,String> param=new HashMap<String,String>();
+
+		 CryptoProcessing cryp = new CryptoProcessing();
+		 
+		 return cryp.cryptoLoadInitate( Sub_Agent_Code,UserName,  Agent_Code,  DepositCurrencyCode,DepositAmount,SellingCurrencyCode, Email);
+		 
+    
+		
+	}
+
+	/////////////////////////////////cryptostatus/////////////////////
+	
+	@RequestMapping(value = "/cryptostatus", method = RequestMethod.POST)
+	@ResponseBody
+	public String  cryptostatus(@RequestParam("TransactionRequestID") String TransactionRequestID,@RequestParam("Sub_Agent_Code") String Sub_Agent_Code,@RequestParam("UserName") String UserName,@RequestParam("Agent_Code") String Agent_Code,@RequestParam("Email") String Email,@RequestParam("DepositCurrencyCode") String DepositCurrencyCode,@RequestParam("DepositAmount") String DepositAmount,@RequestParam("SellingCurrencyCode") String SellingCurrencyCode, HttpServletRequest request, Model model)
+			throws Exception {
+
+		
+	//	Map<String,String> param=new HashMap<String,String>();
+
+		 cryptostatus crypsta = new cryptostatus();
+		 
+		 return crypsta.cryptostatus( TransactionRequestID,Sub_Agent_Code,UserName,  Agent_Code,  DepositCurrencyCode,DepositAmount,SellingCurrencyCode, Email);
+		 
+    
+		
+	}
+	
+	
+	////////////////////////////////////////get  activity//////////////////////
+	@RequestMapping(value = "/cryptohistory", method = RequestMethod.POST)
+	 @ResponseBody 
+	 public String cryptohistory(
+			@RequestParam("Sub_Agent_Code") String Sub_Agent_Code,@RequestParam("UserName") String UserName,@RequestParam("Agent_Code") String Agent_Code,@RequestParam("Email") String Email , Model Model,TransactionActivitiesBean transactionbean, HttpServletRequest request) throws JSONException {
+
+		cryptoactivity btchistory = new cryptoactivity();
+		return	btchistory.cryptohistor(Sub_Agent_Code,UserName,Agent_Code, Email);
+
+		 
+	}
+	
+	
+	
+	
+	
+	
+	////////////////////////////////////////////////////////////////////////
+	
+
+
+
+
+
 /////////////////////////////////logout///////////////////////
+
+@RequestMapping(value = "/logout", method = RequestMethod.POST)
+public ModelAndView logout() {
+
+	ModelAndView mv = new ModelAndView("login");
+	mv.addObject("username", email);
+	
+	return mv;
+}
+
+
+
+
+
+
+
+
+
+@RequestMapping(value = "/loginn", method = RequestMethod.GET)
+public ModelAndView loginn() {
+
+	ModelAndView mv = new ModelAndView("login");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+
+
+/////////////////////////activityacc page redirect/////
+
+@RequestMapping(value = "/ACCactivity", method = RequestMethod.GET)
+public ModelAndView acti() {
+
+	ModelAndView mv = new ModelAndView("accactivity");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+///////////////////////////////////load from bank account
+
+@RequestMapping(value = "/frombank", method = RequestMethod.GET)
+public ModelAndView frombank() {
+
+	ModelAndView mv = new ModelAndView("bankwa");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+
+//////////////////////////////////rev report/////////////////
+@RequestMapping(value = "/report", method = RequestMethod.GET)
+public ModelAndView report() {
+
+	ModelAndView mv = new ModelAndView("revreport");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+
+
+
+
+///////////////////////////loading///////////////////
+@RequestMapping(value = "/loading", method = RequestMethod.GET)
+public ModelAndView lo() {
+
+	ModelAndView mv = new ModelAndView("load");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////Edit Account////////////////////////////////////
+
+@RequestMapping(value = "/editacc", method = RequestMethod.GET)
+public ModelAndView edi() {
+
+	ModelAndView mv = new ModelAndView("edit");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+/////////////////////////////////////////////////
+///////////////////
+
+
+//////////////////////////////////dashboard
+
+
+@RequestMapping(value = "/dasbo", method = RequestMethod.GET)
+public ModelAndView dasbo() {
+
+	ModelAndView mv = new ModelAndView("dashboard2");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+
+
+/////////////////crpto/////////////////
+@RequestMapping(value = "/crypto", method = RequestMethod.GET)
+public ModelAndView crypto() {
+
+	ModelAndView mv = new ModelAndView("frombtc");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+
+
+
+
+/////////////////////////////////////////////////////////////sponsered accounts
+
+@RequestMapping(value = "/mysponsoredaccounts", method = RequestMethod.GET)
+public ModelAndView sponsored() {
+
+	ModelAndView mv = new ModelAndView("accounts");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+//////////////////////////////withdraw
+@RequestMapping(value = "/withdrawmoney", method = RequestMethod.GET)
+public ModelAndView with() {
+
+	ModelAndView mv = new ModelAndView("withdraw");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+////////////////////////////////////card activity
+
+@RequestMapping(value = "/CARDactivity", method = RequestMethod.GET)
+public ModelAndView cardacti() {
+
+	ModelAndView mv = new ModelAndView("cardactivity");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+///////////////////////////////////////////////////////////////////////////////////multiple transfers/////////////
+
+//////////////////////////multiple payments////////////////
+@RequestMapping(value = "/paymulti", method = RequestMethod.GET)
+public ModelAndView multipay() {
+
+	ModelAndView mv = new ModelAndView("multipayment");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+////////////////////////////////////////////////batch upload/////////////////////
+@RequestMapping(value = "/batchupload", method = RequestMethod.GET)
+public ModelAndView batchup() {
+
+	ModelAndView mv = new ModelAndView("batchupload");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+
+//////////////////////////////////////////////////////////requests////////////////////
+@RequestMapping(value = "/requests", method = RequestMethod.GET)
+public ModelAndView req() {
+
+	ModelAndView mv = new ModelAndView("requests");
+	//mv.addObject("username", email);
+	
+	return mv;
+}
+//////////////////////////////////////////////////
+///////////////////      //////////
+
+
+
+///////////////////////////////////////////////
 
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public ModelAndView userlogout() {
